@@ -162,8 +162,8 @@ const buildPrintHtml = (contrato) => {
     margin-bottom: 12px;
   }
   .logo-wrap {
-    width: 250px;
-    height: 58px;
+    width: 300px;
+    height: 68px;
     border: 1px solid rgba(13, 31, 60, 0.2);
     border-radius: 8px;
     background: #fff;
@@ -172,7 +172,13 @@ const buildPrintHtml = (contrato) => {
     justify-content: center;
     overflow: hidden;
   }
-  .logo-wrap img { max-width: 100%; max-height: 100%; object-fit: contain; }
+  .logo-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    transform: scale(1.22);
+    transform-origin: center;
+  }
   .doc-info { text-align: right; }
   .doc-title {
     font-family: "Cormorant Garamond", serif;
@@ -367,22 +373,22 @@ const buildPrintHtml = (contrato) => {
           <img src="${window.location.origin}/contrato/logo-contrato.png" alt="Logo contrato" />
         </div>
         <div class="doc-info">
-          <div class="doc-title">Contrato de Servicos</div>
-          <div class="doc-row">No ${escapeHtml(contrato.numero_contrato)} / ${escapeHtml(contrato.ano_referencia)}</div>
+          <div class="doc-title">Contrato de Serviços</div>
+          <div class="doc-row">N.º ${escapeHtml(contrato.numero_contrato)} / ${escapeHtml(contrato.ano_referencia)}</div>
           <div class="doc-row">Data: ${escapeHtml(formatDate(contrato.data_contrato))}</div>
         </div>
       </div>
 
-      <h1>Contrato de Prestacao de Servicos Academicos</h1>
+      <h1>Contrato de Prestação de Serviços Académicos</h1>
 
       <div class="section-label">Partes Contratantes</div>
       <div class="parties">
         <div class="party-box">
-          <div class="party-label">Prestador de Servicos</div>
+          <div class="party-label">Prestador de Serviços</div>
           <div class="party-name">AcadLab Moz</div>
           <div class="party-detail">
-            Fundada em 2019 - Nampula, Mocambique<br />
-            Especialista em producao cientifica e suporte academico<br />
+            Fundada em 2019 - Nampula, Moçambique<br />
+            Especialista em produção científica e suporte académico<br />
             Contacto: 864 055 649
           </div>
         </div>
@@ -391,18 +397,18 @@ const buildPrintHtml = (contrato) => {
           <div class="party-name">${escapeHtml(contrato.cliente_nome || "-")}</div>
           <div class="party-detail">
             Curso: ${escapeHtml(contrato.curso || "-")}<br />
-            Instituicao: ${escapeHtml(contrato.instituicao || "-")}<br />
+            Instituição: ${escapeHtml(contrato.instituicao || "-")}<br />
             Contacto: ${escapeHtml(contrato.contato || "-")}
           </div>
         </div>
       </div>
 
-      <div class="section-label">Descricao dos Servicos</div>
+      <div class="section-label">Descrição dos Serviços</div>
       <table class="services-table">
         <thead>
           <tr>
             <th>#</th>
-            <th>Servico Contratado</th>
+            <th>Serviço Contratado</th>
             <th>Qtd.</th>
             <th>Prazo de Entrega</th>
             <th>Valor Unit. (MZN)</th>
@@ -422,39 +428,39 @@ const buildPrintHtml = (contrato) => {
         </tbody>
       </table>
 
-      <div class="section-label">Clausulas e Condicoes</div>
+      <div class="section-label">Cláusulas e Condições</div>
       <div class="clauses-grid">
         <div class="clause">
-          <div class="clause-title">Clausula I - Pagamento</div>
-          <p>O pagamento sera efectuado conforme acordado: <strong>${Number(
+          <div class="clause-title">Cláusula I - Pagamento</div>
+          <p>O pagamento será efectuado conforme acordado: <strong>${Number(
             contrato.percentual_pagamento || 100
-          ).toFixed(0)}%</strong> no acto da contratacao e o remanescente na entrega. Meios aceites: M-Pesa, e-Mola e Transferencia Bancaria.</p>
+          ).toFixed(0)}%</strong> no acto da contratação e o remanescente na entrega. Meios aceites: M-Pesa, e-Mola e Transferência Bancária.</p>
         </div>
         <div class="clause">
-          <div class="clause-title">Clausula II - Confidencialidade</div>
-          <p>A AcadLab Moz compromete-se a manter total sigilo sobre os dados, conteudos e informacoes fornecidos pelo cliente, nao os divulgando a terceiros.</p>
+          <div class="clause-title">Cláusula II - Confidencialidade</div>
+          <p>A AcadLab Moz compromete-se a manter total sigilo sobre os dados, conteúdos e informações fornecidos pelo cliente, não os divulgando a terceiros.</p>
         </div>
         <div class="clause">
-          <div class="clause-title">Clausula III - Revisoes</div>
-          <p>O cliente tem direito a revisoes sem custo adicional, desde que dentro do escopo original acordado. Normas aplicadas: APA, ABNT, Vancouver ou outra solicitada.</p>
+          <div class="clause-title">Cláusula III - Revisões</div>
+          <p>O cliente tem direito a revisões sem custo adicional, desde que dentro do escopo original acordado. Normas aplicadas: APA, ABNT, Vancouver ou outra solicitada.</p>
         </div>
         <div class="clause">
-          <div class="clause-title">Clausula IV - Propriedade e Uso</div>
-          <p>Apos quitacao total, o material produzido e de uso exclusivo do cliente. A AcadLab Moz reserva-se o direito de utilizar o trabalho como portfolio anonimo.</p>
+          <div class="clause-title">Cláusula IV - Propriedade e Uso</div>
+          <p>Após quitação total, o material produzido é de uso exclusivo do cliente. A AcadLab Moz reserva-se o direito de utilizar o trabalho como portfólio anónimo.</p>
         </div>
         <div class="clause">
-          <div class="clause-title">Clausula V - Cancelamento</div>
-          <p>Em caso de cancelamento pelo cliente apos inicio dos trabalhos, o valor da fase executada sera retido. Cancelamentos antes do inicio terao reembolso integral.</p>
+          <div class="clause-title">Cláusula V - Cancelamento</div>
+          <p>Em caso de cancelamento pelo cliente após início dos trabalhos, o valor da fase executada será retido. Cancelamentos antes do início terão reembolso integral.</p>
         </div>
         <div class="clause">
-          <div class="clause-title">Clausula VI - Rigor e Qualidade</div>
-          <p>Todos os trabalhos sao executados com rigor cientifico, etica profissional e alinhados as exigencias institucionais, garantindo resultados de alta qualidade academica.</p>
+          <div class="clause-title">Cláusula VI - Rigor e Qualidade</div>
+          <p>Todos os trabalhos são executados com rigor científico, ética profissional e alinhados às exigências institucionais, garantindo resultados de alta qualidade académica.</p>
         </div>
       </div>
 
       <div class="obs">
-        <h3>Observacoes / Negociacao</h3>
-        <p>${escapeHtml(contrato.observacoes || "Sem observacoes.")}</p>
+        <h3>Observações / Negociação</h3>
+        <p>${escapeHtml(contrato.observacoes || "Sem observações.")}</p>
       </div>
 
       <div class="section-label">Assinaturas</div>
@@ -463,7 +469,7 @@ const buildPrintHtml = (contrato) => {
           <div class="sig-space"></div>
           <div class="sig-line"></div>
           <div class="sig-name">${escapeHtml(contrato.assinatura || "Ass :")}</div>
-          <div class="sig-role">Prestador de Servicos</div>
+          <div class="sig-role">Prestador de Serviços</div>
         </div>
         <div class="sig">
           <div class="sig-space"></div>
@@ -474,9 +480,9 @@ const buildPrintHtml = (contrato) => {
       </div>
 
       <div class="footer">
-        <div class="footer-brand">AcadLab Moz - O Seu Sucesso e a Nossa Tese.</div>
-        <div>Nampula - Mocambique - Fundada 2019</div>
-        <div>Pag. 1 / 1</div>
+        <div class="footer-brand">AcadLab Moz - O Seu Sucesso é a Nossa Tese.</div>
+        <div>Nampula - Moçambique - Fundada 2019</div>
+        <div>Pág. 1 / 1</div>
       </div>
     </div>
   </div>
@@ -743,7 +749,7 @@ export default function ContractManager({ universities }) {
         </div>
 
         <div>
-          <label className="mb-1 block text-sm font-medium text-slate-700">Numero do contrato</label>
+          <label className="mb-1 block text-sm font-medium text-slate-700">Número do contrato</label>
           <input
             className="input"
             value={form.numero_contrato}
@@ -758,7 +764,7 @@ export default function ContractManager({ universities }) {
           <input className="input" value={form.curso} readOnly />
         </div>
         <div>
-          <label className="mb-1 block text-sm font-medium text-slate-700">Instituicao</label>
+          <label className="mb-1 block text-sm font-medium text-slate-700">Instituição</label>
           <input className="input" value={form.instituicao} readOnly />
         </div>
         <div>
@@ -783,17 +789,17 @@ export default function ContractManager({ universities }) {
       </div>
 
       <div className="mt-5">
-        <p className="text-sm font-semibold text-slate-900">Servicos contratados</p>
+        <p className="text-sm font-semibold text-slate-900">Serviços contratados</p>
         <div className="mt-2 overflow-x-auto rounded-xl border border-slate-200 bg-white">
           <table className="min-w-full text-sm">
             <thead>
               <tr className="border-b border-slate-200 bg-slate-100 text-left text-slate-600">
-                <th className="px-2 py-2">Servico</th>
+                <th className="px-2 py-2">Serviço</th>
                 <th className="px-2 py-2">Qtd.</th>
                 <th className="px-2 py-2">Prazo</th>
                 <th className="px-2 py-2">Valor Unit.</th>
                 <th className="px-2 py-2">Subtotal</th>
-                <th className="px-2 py-2">Acao</th>
+                <th className="px-2 py-2">Ação</th>
               </tr>
             </thead>
             <tbody>
@@ -873,12 +879,12 @@ export default function ContractManager({ universities }) {
           <p className="text-xl font-bold text-brand-700">{formatMoney(valorPagamento)}</p>
         </div>
         <div>
-          <label className="mb-1 block text-sm font-medium text-slate-700">Observacoes / negociacao</label>
+          <label className="mb-1 block text-sm font-medium text-slate-700">Observações / negociação</label>
           <textarea
             className="input min-h-28"
             value={form.observacoes}
             onChange={(e) => setForm((prev) => ({ ...prev, observacoes: e.target.value }))}
-            placeholder="Escreva observacoes para negociacao com o cliente."
+            placeholder="Escreva observações para negociação com o cliente."
           />
         </div>
       </div>
@@ -898,11 +904,11 @@ export default function ContractManager({ universities }) {
           <table className="min-w-full text-sm">
             <thead>
               <tr className="border-b border-slate-200 bg-slate-100 text-left text-slate-600">
-                <th className="px-3 py-2">Numero</th>
+                <th className="px-3 py-2">Número</th>
                 <th className="px-3 py-2">Cliente</th>
                 <th className="px-3 py-2">Data</th>
                 <th className="px-3 py-2">Total</th>
-                <th className="px-3 py-2">Acoes</th>
+                <th className="px-3 py-2">Ações</th>
               </tr>
             </thead>
             <tbody>
