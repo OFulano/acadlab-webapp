@@ -3,7 +3,6 @@ import { api } from "../services/api";
 import MetricCard from "../components/MetricCard";
 import StatusPill from "../components/StatusPill";
 import WhatsAppLink from "../components/WhatsAppLink";
-import ContractManager from "../components/ContractManager";
 import { ConfirmPopup, NoticeToast } from "../components/PrettyPopup";
 
 const initialForms = {
@@ -13,7 +12,7 @@ const initialForms = {
   pagamento: { cliente_id: "", valor_total: "", valor_pago: "", data_pagamento: "", metodo: "", observacoes: "" }
 };
 
-export default function Dashboard({ university, universities = [], onBack, onDeleteUniversity }) {
+export default function Dashboard({ university, onBack }) {
   const [forms, setForms] = useState(initialForms);
   const [filters, setFilters] = useState({ bloco_id: "", cliente_id: "", tipo_trabalho: "", status_pagamento: "" });
   const [blocos, setBlocos] = useState([]);
@@ -32,17 +31,20 @@ export default function Dashboard({ university, universities = [], onBack, onDel
   const [menuOpen, setMenuOpen] = useState(false);
   const [activePanel, setActivePanel] = useState("");
   const [notice, setNotice] = useState(null);
-  const [universityToDelete, setUniversityToDelete] = useState(null);
-  const [deletingUniversity, setDeletingUniversity] = useState(false);
+  const [editingClientId, setEditingClientId] = useState("");
+  const [editingClient, setEditingClient] = useState({
+    nome: "",
+    curso: "",
+    tipo: "",
+    contato: "",
+    status: "ativo",
+    bloco_id: ""
+  });
+  const [clientToDelete, setClientToDelete] = useState(null);
+  const [savingClient, setSavingClient] = useState(false);
+  const [deletingClient, setDeletingClient] = useState(false);
 
-  const managedUniversities = universities.length > 0 ? universities : [university];
-
-  const menuItems = [
-    { id: "sobre", label: "Sobre Nós" },
-    { id: "gerir", label: "Gerir Faculdade" },
-    { id: "adicionar", label: "Adicionar Opção" },
-    { id: "contrato", label: "Criar Contrato" }
-  ];
+  const menuItems = [{ id: "gerir_clientes", label: "Gerir Utilizadores" }];
 
   const showNotice = (type, message) => {
     setNotice({ type, message, ts: Date.now() });
@@ -104,18 +106,76 @@ export default function Dashboard({ university, universities = [], onBack, onDel
     await loadAll();
   };
 
-  const confirmDeleteUniversity = async () => {
-    if (!universityToDelete || !onDeleteUniversity) return;
+  const openClientEditor = (client) => {
+    setEditingClientId(client.id);
+    setEditingClient({
+      nome: client.nome || "",
+      curso: client.curso || "",
+      tipo: client.tipo || "",
+      contato: client.contato || "",
+      status: client.status || "ativo",
+      bloco_id: client.bloco_id || ""
+    });
+  };
+
+  const cancelClientEditor = () => {
+    setEditingClientId("");
+    setEditingClient({
+      nome: "",
+      curso: "",
+      tipo: "",
+      contato: "",
+      status: "ativo",
+      bloco_id: ""
+    });
+  };
+
+  const saveClientUpdate = async () => {
+    if (!editingClientId) return;
+    if (
+      !editingClient.nome.trim() ||
+      !editingClient.curso.trim() ||
+      !editingClient.tipo.trim() ||
+      !editingClient.contato.trim() ||
+      !editingClient.bloco_id
+    ) {
+      showNotice("warn", "Preencha os campos obrigatórios do cliente.");
+      return;
+    }
 
     try {
-      setDeletingUniversity(true);
-      await onDeleteUniversity(universityToDelete.id);
-      showNotice("success", `Faculdade ${universityToDelete.nome} eliminada com sucesso.`);
-      setUniversityToDelete(null);
+      setSavingClient(true);
+      await api.put(`/api/clientes/${editingClientId}`, {
+        ...editingClient,
+        universidade_id: university.id,
+        data_entrada: new Date().toISOString().slice(0, 10)
+      });
+      await loadAll();
+      cancelClientEditor();
+      showNotice("success", "Cliente actualizado com sucesso.");
     } catch (error) {
-      showNotice("error", `Falha ao eliminar faculdade: ${error.message}`);
+      showNotice("error", `Falha ao actualizar cliente: ${error.message}`);
     } finally {
-      setDeletingUniversity(false);
+      setSavingClient(false);
+    }
+  };
+
+  const confirmDeleteClient = async () => {
+    if (!clientToDelete) return;
+
+    try {
+      setDeletingClient(true);
+      await api.delete(`/api/clientes/${clientToDelete.id}`);
+      await loadAll();
+      showNotice("success", `Cliente ${clientToDelete.nome} eliminado com sucesso.`);
+      setClientToDelete(null);
+      if (editingClientId === clientToDelete.id) {
+        cancelClientEditor();
+      }
+    } catch (error) {
+      showNotice("error", `Falha ao eliminar cliente: ${error.message}`);
+    } finally {
+      setDeletingClient(false);
     }
   };
 
@@ -172,64 +232,110 @@ export default function Dashboard({ university, universities = [], onBack, onDel
         </div>
       </header>
 
-      {activePanel === "sobre" && (
+      {activePanel === "gerir_clientes" && (
         <section className="card mb-5 p-4 text-left">
-          <h2 className="text-lg font-semibold text-slate-900">Sobre Nós</h2>
-          <p className="mt-2 text-sm leading-6 text-slate-700">
-            Fundada em 2019, na cidade de Nampula - Moçambique, a AcadLab Moz nasceu com a missão de oferecer suporte
-            académico acessível, profissional e de alta qualidade para estudantes de diferentes níveis de ensino.
-          </p>
-          <p className="mt-3 text-sm leading-6 text-slate-700">
-            Especializada em produção científica, revisão técnica, normalização académica e orientação metodológica, a
-            AcadLab Moz posiciona-se como parceira estratégica no desenvolvimento académico dos seus clientes.
-          </p>
-          <p className="mt-3 text-sm leading-6 text-slate-700">
-            Trabalhamos com ética, confidencialidade e rigor científico, garantindo resultados alinhados às exigências
-            institucionais.
-          </p>
-          <p className="mt-3 text-sm font-semibold text-slate-900">AcadLab Moz - O Seu Sucesso é a Nossa Tese.</p>
-        </section>
-      )}
-
-      {activePanel === "gerir" && (
-        <section className="card mb-5 p-4 text-left">
-          <h2 className="text-lg font-semibold text-slate-900">Gerir Faculdade</h2>
+          <h2 className="text-lg font-semibold text-slate-900">Gerir Utilizadores</h2>
+          <p className="mt-1 text-sm text-slate-600">Aqui pode editar, actualizar e apagar clientes já registados.</p>
           <div className="mt-3 space-y-2">
-            {managedUniversities.map((item) => (
+            {clientes.map((item) => (
               <div
                 key={item.id}
                 className="flex flex-col gap-2 rounded-xl border border-slate-200 bg-slate-50 p-3 sm:flex-row sm:items-center sm:justify-between"
               >
                 <div>
                   <p className="font-medium text-slate-900">{item.nome}</p>
-                  <p className="text-xs uppercase tracking-wide text-slate-500">Status: {item.status}</p>
+                  <p className="text-xs uppercase tracking-wide text-slate-500">
+                    Curso: {item.curso} | Status: {item.status}
+                  </p>
                 </div>
-                <button
-                  type="button"
-                  className="rounded-xl bg-red-600 px-3 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50"
-                  onClick={() => setUniversityToDelete(item)}
-                  disabled={!onDeleteUniversity}
-                >
-                  Eliminar
-                </button>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    className="rounded-xl bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700"
+                    onClick={() => openClientEditor(item)}
+                  >
+                    Editar
+                  </button>
+                  <button
+                    type="button"
+                    className="rounded-xl bg-red-600 px-3 py-2 text-sm font-medium text-white hover:bg-red-700"
+                    onClick={() => setClientToDelete(item)}
+                  >
+                    Apagar
+                  </button>
+                </div>
               </div>
             ))}
           </div>
-        </section>
-      )}
-
-      {activePanel === "adicionar" && (
-        <section className="card mb-5 p-4 text-left">
-          <h2 className="text-lg font-semibold text-slate-900">Adicionar Opção</h2>
-          <p className="mt-2 text-sm text-slate-600">
-            Espaço reservado para as próximas opções que você vai enviar.
-          </p>
-        </section>
-      )}
-
-      {activePanel === "contrato" && (
-        <section className="mb-5">
-          <ContractManager universities={managedUniversities} />
+          {editingClientId && (
+            <div className="mt-4 rounded-xl border border-slate-200 bg-white p-4">
+              <h3 className="text-base font-semibold text-slate-900">Actualizar cliente</h3>
+              <div className="mt-3 grid gap-2 md:grid-cols-2">
+                <input
+                  className="input"
+                  placeholder="Nome"
+                  value={editingClient.nome}
+                  onChange={(e) => setEditingClient((prev) => ({ ...prev, nome: e.target.value }))}
+                />
+                <input
+                  className="input"
+                  placeholder="Curso"
+                  value={editingClient.curso}
+                  onChange={(e) => setEditingClient((prev) => ({ ...prev, curso: e.target.value }))}
+                />
+                <input
+                  className="input"
+                  placeholder="Tipo"
+                  value={editingClient.tipo}
+                  onChange={(e) => setEditingClient((prev) => ({ ...prev, tipo: e.target.value }))}
+                />
+                <input
+                  className="input"
+                  placeholder="Contacto"
+                  value={editingClient.contato}
+                  onChange={(e) => setEditingClient((prev) => ({ ...prev, contato: e.target.value }))}
+                />
+                <select
+                  className="input"
+                  value={editingClient.status}
+                  onChange={(e) => setEditingClient((prev) => ({ ...prev, status: e.target.value }))}
+                >
+                  <option value="ativo">Ativo</option>
+                  <option value="inativo">Inativo</option>
+                </select>
+                <select
+                  className="input"
+                  value={editingClient.bloco_id}
+                  onChange={(e) => setEditingClient((prev) => ({ ...prev, bloco_id: e.target.value }))}
+                >
+                  <option value="">Escolha o bloco...</option>
+                  {blocos.map((b) => (
+                    <option key={b.id} value={b.id}>
+                      {b.nome}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="mt-3 flex gap-2">
+                <button
+                  type="button"
+                  className="rounded-xl bg-slate-200 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-300"
+                  onClick={cancelClientEditor}
+                  disabled={savingClient}
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  className="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700 disabled:opacity-60"
+                  onClick={saveClientUpdate}
+                  disabled={savingClient}
+                >
+                  {savingClient ? "A processar..." : "Actualizar"}
+                </button>
+              </div>
+            </div>
+          )}
         </section>
       )}
 
@@ -520,18 +626,14 @@ export default function Dashboard({ university, universities = [], onBack, onDel
 
       <NoticeToast notice={notice} onClose={() => setNotice(null)} />
       <ConfirmPopup
-        open={Boolean(universityToDelete)}
-        title="Eliminar Faculdade"
-        message={
-          universityToDelete
-            ? `Eliminar "${universityToDelete.nome}"? Esta ação remove blocos, clientes, trabalhos e pagamentos vinculados.`
-            : ""
-        }
-        confirmLabel="Eliminar"
+        open={Boolean(clientToDelete)}
+        title="Apagar Cliente"
+        message={clientToDelete ? `Deseja apagar o cliente "${clientToDelete.nome}"?` : ""}
+        confirmLabel="Apagar"
         cancelLabel="Cancelar"
-        loading={deletingUniversity}
-        onCancel={() => setUniversityToDelete(null)}
-        onConfirm={confirmDeleteUniversity}
+        loading={deletingClient}
+        onCancel={() => setClientToDelete(null)}
+        onConfirm={confirmDeleteClient}
       />
     </main>
   );
