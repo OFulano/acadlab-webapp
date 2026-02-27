@@ -111,10 +111,22 @@ export default function UniversityGate({ universities, onSelect, onCreate, onDel
 
         {activePanel === "sobre" && (
           <div className="mx-auto mt-8 w-full max-w-3xl rounded-xl border border-slate-200 bg-slate-50 p-4 text-left">
-            <h2 className="text-lg font-semibold text-slate-900">Sobre Nos</h2>
-            <p className="mt-2 text-sm text-slate-600">
-              AcadLab Moz e uma plataforma para organizacao de faculdades, clientes, trabalhos e pagamentos.
+            <h2 className="text-lg font-semibold text-slate-900">Sobre NÓs</h2>
+            <p className="mt-2 text-sm leading-6 text-slate-700">
+              Fundada em 2019, na cidade de Nampula - Moçambique, a AcadLab Moz nasceu com a missão de oferecer
+              suporte académico acessível, profissional e de alta qualidade para estudantes de diferentes níveis de
+              ensino.
             </p>
+            <p className="mt-3 text-sm leading-6 text-slate-700">
+              Especializada em produção científica, revisão técnica, normalização académica e orientação metodológica,
+              a AcadLab Moz posiciona-se como parceira estratégica no desenvolvimento académico dos seus clientes.
+              Trabalhamos com ética, confidencialidade e rigor científico, garantindo resultados alinhados às
+              exigências institucionais.
+            </p>
+            <p className="mt-3 text-sm leading-6 text-slate-700">
+              Acreditamos que cada estudante merece apoio adequado para transformar esforço em excelência.
+            </p>
+            <p className="mt-3 text-sm font-semibold text-slate-900">AcadLab Moz - O Seu Sucesso é a Nossa Tese.</p>
           </div>
         )}
 
