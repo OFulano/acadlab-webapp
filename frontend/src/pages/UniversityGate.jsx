@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import ContractManager from "../components/ContractManager";
 
 export default function UniversityGate({ universities, onSelect, onCreate, onDelete }) {
   const [nome, setNome] = useState("");
@@ -169,10 +170,7 @@ export default function UniversityGate({ universities, onSelect, onCreate, onDel
         )}
 
         {activePanel === "contrato" && (
-          <div className="mx-auto mt-8 w-full max-w-3xl rounded-xl border border-slate-200 bg-slate-50 p-4 text-left">
-            <h2 className="text-lg font-semibold text-slate-900">Criar Contrato</h2>
-            <p className="mt-2 text-sm text-slate-600">Modulo em preparacao. Assim que enviar os campos, eu monto tudo.</p>
-          </div>
+          <ContractManager universities={universities} />
         )}
       </section>
     </main>

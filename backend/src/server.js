@@ -22,6 +22,45 @@ const handleDbError = (res, error) => {
   return res.status(400).json({ error: error.message || "Erro ao processar operação." });
 };
 
+const sanitizeContractItems = (items = []) =>
+  (Array.isArray(items) ? items : []).map((item, index) => {
+    const quantidade = parseNumber(item.quantidade, 0);
+    const valorUnitario = parseNumber(item.valor_unitario, 0);
+
+    return {
+      id_linha: item.id_linha || `${index + 1}`,
+      servico: item.servico || "",
+      quantidade,
+      prazo_entrega: item.prazo_entrega || "",
+      valor_unitario: valorUnitario,
+      subtotal: Number((quantidade * valorUnitario).toFixed(2))
+    };
+  });
+
+const mapContratoPayload = (body) => {
+  const itens = sanitizeContractItems(body.itens);
+  const valorTotal =
+    parseNumber(body.valor_total, -1) >= 0
+      ? parseNumber(body.valor_total, 0)
+      : Number(itens.reduce((acc, item) => acc + parseNumber(item.subtotal, 0), 0).toFixed(2));
+
+  return {
+    cliente_id: body.cliente_id,
+    universidade_id: body.universidade_id,
+    numero_contrato: body.numero_contrato,
+    data_contrato: body.data_contrato,
+    ano_referencia: parseNumber(body.ano_referencia, new Date().getFullYear()),
+    curso: body.curso || "",
+    instituicao: body.instituicao || "",
+    contato: normalizePhone(body.contato || ""),
+    itens,
+    valor_total: valorTotal,
+    percentual_pagamento: parseNumber(body.percentual_pagamento, 100),
+    observacoes: body.observacoes || "",
+    assinatura: body.assinatura || "Ass :"
+  };
+};
+
 const attachCrudRoutes = ({ path, tableName, preprocessPayload }) => {
   app.get(`/api/${path}`, async (req, res) => {
     try {
@@ -184,6 +223,73 @@ attachCrudRoutes({
     valor_pago: parseNumber(body.valor_pago, 0)
     // valor_pendente é calculado automaticamente no banco.
   })
+});
+
+app.get("/api/contratos", async (req, res) => {
+  try {
+    let query = supabase.from("vw_contratos_resumo").select("*").order("created_at", { ascending: false });
+    query = applyFilters(query, {
+      universidade_id: req.query.universidade_id,
+      cliente_id: req.query.cliente_id
+    });
+
+    const { data, error } = await query;
+    if (error) return handleDbError(res, error);
+    return res.json(data);
+  } catch (error) {
+    return handleDbError(res, error);
+  }
+});
+
+app.get("/api/contratos/:id", async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from("vw_contratos_resumo")
+      .select("*")
+      .eq("id", req.params.id)
+      .single();
+    if (error) return handleDbError(res, error);
+    return res.json(data);
+  } catch (error) {
+    return handleDbError(res, error);
+  }
+});
+
+app.post("/api/contratos", async (req, res) => {
+  try {
+    const payload = mapContratoPayload(req.body);
+    const { data, error } = await supabase.from("contratos").insert(payload).select("*").single();
+    if (error) return handleDbError(res, error);
+    return res.status(201).json(data);
+  } catch (error) {
+    return handleDbError(res, error);
+  }
+});
+
+app.put("/api/contratos/:id", async (req, res) => {
+  try {
+    const payload = mapContratoPayload(req.body);
+    const { data, error } = await supabase
+      .from("contratos")
+      .update(payload)
+      .eq("id", req.params.id)
+      .select("*")
+      .single();
+    if (error) return handleDbError(res, error);
+    return res.json(data);
+  } catch (error) {
+    return handleDbError(res, error);
+  }
+});
+
+app.delete("/api/contratos/:id", async (req, res) => {
+  try {
+    const { error } = await supabase.from("contratos").delete().eq("id", req.params.id);
+    if (error) return handleDbError(res, error);
+    return res.status(204).send();
+  } catch (error) {
+    return handleDbError(res, error);
+  }
 });
 
 app.get("/api/dashboard/summary", async (req, res) => {

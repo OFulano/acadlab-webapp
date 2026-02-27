@@ -29,6 +29,16 @@ export const api = {
     if (!response.ok) throw new Error(await response.text());
     return response.json();
   },
+  async put(path, body) {
+    const response = await fetch(`${API_URL}${path}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body)
+    });
+
+    if (!response.ok) throw new Error(await response.text());
+    return response.json();
+  },
   async delete(path, params) {
     const response = await fetch(`${API_URL}${path}${toQuery(params)}`, {
       method: "DELETE"

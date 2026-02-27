@@ -5,6 +5,7 @@ Esqueleto completo para gerenciamento de clientes, trabalhos e pagamentos com al
 ## Estrutura
 
 - `supabase/schema.sql`: banco de dados, relacionamentos, views de alerta e dados de teste.
+- `supabase/003_create_contratos.sql`: migração incremental para habilitar o módulo de contratos.
 - `backend/`: API Node.js + Express com CRUD e filtros.
 - `frontend/`: React + Tailwind, responsivo para celular e desktop.
 
@@ -57,10 +58,11 @@ O frontend já está preparado para SPA no Vercel com:
 - `GET /api/universidades`
 - `GET /api/blocos?universidade_id=...`
 - `GET /api/clientes?universidade_id=...&bloco_id=...`
+- `GET /api/contratos?universidade_id=...`
 - `GET /api/alertas/trabalhos?universidade_id=...`
 - `GET /api/alertas/pagamentos?universidade_id=...`
 - `GET /api/dashboard/summary?universidade_id=...`
-- CRUD completo: `POST/PUT/DELETE` em `/api/universidades`, `/api/blocos`, `/api/clientes`, `/api/trabalhos`, `/api/pagamentos`
+- CRUD completo: `POST/PUT/DELETE` em `/api/universidades`, `/api/blocos`, `/api/clientes`, `/api/trabalhos`, `/api/pagamentos`, `/api/contratos`
 
 ## Automações entregues
 
@@ -68,6 +70,15 @@ O frontend já está preparado para SPA no Vercel com:
 - Classificação automática de alertas de prazo (`normal`, `proximo`, `critico`, `atrasado`).
 - Classificação automática de pagamentos (`quitado`, `pendente`, `atrasado`).
 - Botão click-to-chat WhatsApp no dashboard (`https://wa.me/<numero>`).
+- Módulo de contratos com impressão em formato A4, cálculo automático de total e salvamento para edição futura.
+- Preenchimento automático no contrato ao selecionar cliente (curso, instituição, contacto e data atual).
+
+## Logo para contratos
+
+- Coloque o logo usado no contrato neste caminho:
+  - `frontend/public/contrato/logo-contrato.png`
+- Um guia foi adicionado em:
+  - `frontend/public/contrato/README-logo-contrato.txt`
 
 ## Dados de teste incluídos
 
