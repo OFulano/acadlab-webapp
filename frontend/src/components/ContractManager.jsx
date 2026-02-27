@@ -162,8 +162,8 @@ const buildPrintHtml = (contrato) => {
     margin-bottom: 12px;
   }
   .logo-wrap {
-    width: 300px;
-    height: 68px;
+    width: 360px;
+    height: 84px;
     border: 1px solid rgba(13, 31, 60, 0.2);
     border-radius: 8px;
     background: #fff;
@@ -176,7 +176,7 @@ const buildPrintHtml = (contrato) => {
     width: 100%;
     height: 100%;
     object-fit: contain;
-    transform: scale(1.22);
+    transform: scale(1.42);
     transform-origin: center;
   }
   .doc-info { text-align: right; }
@@ -373,22 +373,22 @@ const buildPrintHtml = (contrato) => {
           <img src="${window.location.origin}/contrato/logo-contrato.png" alt="Logo contrato" />
         </div>
         <div class="doc-info">
-          <div class="doc-title">Contrato de Serviços</div>
+          <div class="doc-title">Contrato de Servi&ccedil;os</div>
           <div class="doc-row">N.º ${escapeHtml(contrato.numero_contrato)} / ${escapeHtml(contrato.ano_referencia)}</div>
           <div class="doc-row">Data: ${escapeHtml(formatDate(contrato.data_contrato))}</div>
         </div>
       </div>
 
-      <h1>Contrato de Prestação de Serviços Académicos</h1>
+      <h1>Contrato de Presta&ccedil;&atilde;o de Servi&ccedil;os Acad&eacute;micos</h1>
 
       <div class="section-label">Partes Contratantes</div>
       <div class="parties">
         <div class="party-box">
-          <div class="party-label">Prestador de Serviços</div>
+          <div class="party-label">Prestador de Servi&ccedil;os</div>
           <div class="party-name">AcadLab Moz</div>
           <div class="party-detail">
-            Fundada em 2019 - Nampula, Moçambique<br />
-            Especialista em produção científica e suporte académico<br />
+            Fundada em 2019 - Nampula, Mo&ccedil;ambique<br />
+            Especialista em produ&ccedil;&atilde;o cient&iacute;fica e suporte acad&eacute;mico<br />
             Contacto: 864 055 649
           </div>
         </div>
@@ -397,18 +397,18 @@ const buildPrintHtml = (contrato) => {
           <div class="party-name">${escapeHtml(contrato.cliente_nome || "-")}</div>
           <div class="party-detail">
             Curso: ${escapeHtml(contrato.curso || "-")}<br />
-            Instituição: ${escapeHtml(contrato.instituicao || "-")}<br />
+            Institui&ccedil;&atilde;o: ${escapeHtml(contrato.instituicao || "-")}<br />
             Contacto: ${escapeHtml(contrato.contato || "-")}
           </div>
         </div>
       </div>
 
-      <div class="section-label">Descrição dos Serviços</div>
+      <div class="section-label">Descri&ccedil;&atilde;o dos Servi&ccedil;os</div>
       <table class="services-table">
         <thead>
           <tr>
             <th>#</th>
-            <th>Serviço Contratado</th>
+            <th>Servi&ccedil;o Contratado</th>
             <th>Qtd.</th>
             <th>Prazo de Entrega</th>
             <th>Valor Unit. (MZN)</th>
@@ -428,39 +428,39 @@ const buildPrintHtml = (contrato) => {
         </tbody>
       </table>
 
-      <div class="section-label">Cláusulas e Condições</div>
+      <div class="section-label">Cl&aacute;usulas e Condi&ccedil;&otilde;es</div>
       <div class="clauses-grid">
         <div class="clause">
-          <div class="clause-title">Cláusula I - Pagamento</div>
-          <p>O pagamento será efectuado conforme acordado: <strong>${Number(
+          <div class="clause-title">Cl&aacute;usula I - Pagamento</div>
+          <p>O pagamento ser&aacute; efectuado conforme acordado: <strong>${Number(
             contrato.percentual_pagamento || 100
-          ).toFixed(0)}%</strong> no acto da contratação e o remanescente na entrega. Meios aceites: M-Pesa, e-Mola e Transferência Bancária.</p>
+          ).toFixed(0)}%</strong> no acto da contrata&ccedil;&atilde;o e o remanescente na entrega. Meios aceites: M-Pesa, e-Mola e Transfer&ecirc;ncia Banc&aacute;ria.</p>
         </div>
         <div class="clause">
-          <div class="clause-title">Cláusula II - Confidencialidade</div>
-          <p>A AcadLab Moz compromete-se a manter total sigilo sobre os dados, conteúdos e informações fornecidos pelo cliente, não os divulgando a terceiros.</p>
+          <div class="clause-title">Cl&aacute;usula II - Confidencialidade</div>
+          <p>A AcadLab Moz compromete-se a manter total sigilo sobre os dados, conte&uacute;dos e informa&ccedil;&otilde;es fornecidos pelo cliente, n&atilde;o os divulgando a terceiros.</p>
         </div>
         <div class="clause">
-          <div class="clause-title">Cláusula III - Revisões</div>
-          <p>O cliente tem direito a revisões sem custo adicional, desde que dentro do escopo original acordado. Normas aplicadas: APA, ABNT, Vancouver ou outra solicitada.</p>
+          <div class="clause-title">Cl&aacute;usula III - Revis&otilde;es</div>
+          <p>O cliente tem direito a revis&otilde;es sem custo adicional, desde que dentro do escopo original acordado. Normas aplicadas: APA, ABNT, Vancouver ou outra solicitada.</p>
         </div>
         <div class="clause">
-          <div class="clause-title">Cláusula IV - Propriedade e Uso</div>
-          <p>Após quitação total, o material produzido é de uso exclusivo do cliente. A AcadLab Moz reserva-se o direito de utilizar o trabalho como portfólio anónimo.</p>
+          <div class="clause-title">Cl&aacute;usula IV - Propriedade e Uso</div>
+          <p>Ap&oacute;s quita&ccedil;&atilde;o total, o material produzido &eacute; de uso exclusivo do cliente. A AcadLab Moz reserva-se o direito de utilizar o trabalho como portf&oacute;lio an&oacute;nimo.</p>
         </div>
         <div class="clause">
-          <div class="clause-title">Cláusula V - Cancelamento</div>
-          <p>Em caso de cancelamento pelo cliente após início dos trabalhos, o valor da fase executada será retido. Cancelamentos antes do início terão reembolso integral.</p>
+          <div class="clause-title">Cl&aacute;usula V - Cancelamento</div>
+          <p>Em caso de cancelamento pelo cliente ap&oacute;s in&iacute;cio dos trabalhos, o valor da fase executada ser&aacute; retido. Cancelamentos antes do in&iacute;cio ter&atilde;o reembolso integral.</p>
         </div>
         <div class="clause">
-          <div class="clause-title">Cláusula VI - Rigor e Qualidade</div>
-          <p>Todos os trabalhos são executados com rigor científico, ética profissional e alinhados às exigências institucionais, garantindo resultados de alta qualidade académica.</p>
+          <div class="clause-title">Cl&aacute;usula VI - Rigor e Qualidade</div>
+          <p>Todos os trabalhos s&atilde;o executados com rigor cient&iacute;fico, &eacute;tica profissional e alinhados &agrave;s exig&ecirc;ncias institucionais, garantindo resultados de alta qualidade acad&eacute;mica.</p>
         </div>
       </div>
 
       <div class="obs">
-        <h3>Observações / Negociação</h3>
-        <p>${escapeHtml(contrato.observacoes || "Sem observações.")}</p>
+        <h3>Observa&ccedil;&otilde;es / Negocia&ccedil;&atilde;o</h3>
+        <p>${escapeHtml(contrato.observacoes || "Sem observa\u00E7\u00F5es.")}</p>
       </div>
 
       <div class="section-label">Assinaturas</div>
@@ -468,21 +468,21 @@ const buildPrintHtml = (contrato) => {
         <div class="sig">
           <div class="sig-space"></div>
           <div class="sig-line"></div>
-          <div class="sig-name">${escapeHtml(contrato.assinatura || "Ass :")}</div>
-          <div class="sig-role">Prestador de Serviços</div>
+          <div class="sig-name">Ass.: ________________________________</div>
+          <div class="sig-role">Prestador de Servi&ccedil;os</div>
         </div>
         <div class="sig">
           <div class="sig-space"></div>
           <div class="sig-line"></div>
-          <div class="sig-name">Ass :</div>
+          <div class="sig-name">Ass.: ________________________________</div>
           <div class="sig-role">Cliente / Contratante</div>
         </div>
       </div>
 
       <div class="footer">
-        <div class="footer-brand">AcadLab Moz - O Seu Sucesso é a Nossa Tese.</div>
-        <div>Nampula - Moçambique - Fundada 2019</div>
-        <div>Pág. 1 / 1</div>
+        <div class="footer-brand">AcadLab Moz - O Seu Sucesso &eacute; a Nossa Tese.</div>
+        <div>Nampula - Mo&ccedil;ambique - Fundada 2019</div>
+        <div>P&aacute;g. 1 / 1</div>
       </div>
     </div>
   </div>
