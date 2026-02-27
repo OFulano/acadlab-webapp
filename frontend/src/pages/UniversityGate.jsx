@@ -15,19 +15,19 @@ export default function UniversityGate({ universities, onSelect, onCreate }) {
 
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-4xl flex-col items-center justify-center px-4 py-8">
-      <section className="card w-full p-8">
-        <div className="inline-flex rounded-xl bg-brand-900 p-3">
+      <section className="card w-full p-8 text-center">
+        <div className="mx-auto w-full max-w-xl rounded-2xl border border-slate-200 bg-white p-2 shadow-sm">
           <img
             src="/logo-acadlab.png"
             alt="Logo AcadLab Moz"
-            className="h-14 w-auto object-contain md:h-16"
+            className="mx-auto h-24 w-full rounded-xl object-cover object-center md:h-28"
           />
         </div>
         <h1 className="mt-4 text-3xl font-bold text-slate-900">Gerenciamento de Clientes</h1>
         <p className="mt-2 text-slate-600">Escolha a universidade para entrar no dashboard ou cadastre uma nova.</p>
 
-        <div className="mt-8 grid gap-4 md:grid-cols-2">
-          <div>
+        <div className="mx-auto mt-8 grid w-full max-w-3xl gap-4 md:grid-cols-2">
+          <div className="text-left">
             <label className="mb-1 block text-sm font-medium text-slate-700">Universidade</label>
             <select className="input" value={selected} onChange={(e) => setSelected(e.target.value)}>
               <option value="">Selecione...</option>
@@ -37,12 +37,12 @@ export default function UniversityGate({ universities, onSelect, onCreate }) {
                 </option>
               ))}
             </select>
-            <button className="btn-primary mt-3" disabled={!selected} onClick={() => onSelect(selected)}>
+            <button className="btn-primary mt-3 w-full" disabled={!selected} onClick={() => onSelect(selected)}>
               Entrar no Dashboard
             </button>
           </div>
 
-          <form onSubmit={submitUniversity}>
+          <form className="text-left" onSubmit={submitUniversity}>
             <label className="mb-1 block text-sm font-medium text-slate-700">Nova universidade</label>
             <input
               className="input"
@@ -50,7 +50,7 @@ export default function UniversityGate({ universities, onSelect, onCreate }) {
               onChange={(e) => setNome(e.target.value)}
               placeholder="Ex.: Universidade Zambeze"
             />
-            <button className="btn-muted mt-3" type="submit">
+            <button className="btn-muted mt-3 w-full" type="submit">
               Adicionar universidade
             </button>
           </form>

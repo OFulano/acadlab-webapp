@@ -80,12 +80,12 @@ export default function Dashboard({ university, onBack }) {
   return (
     <main className="mx-auto w-full max-w-7xl px-4 py-4 md:px-8 md:py-8">
       <header className="mb-5 flex flex-col gap-3 rounded-2xl bg-brand-900 p-4 text-white md:flex-row md:items-center md:justify-between md:p-6">
-        <div className="flex items-center gap-3">
-          <div className="rounded-xl bg-brand-900/60 p-2">
+        <div className="flex flex-col items-center gap-3 text-center md:flex-row md:text-left">
+          <div className="rounded-xl border border-white/20 bg-white p-1 shadow-sm">
             <img
               src="/logo-acadlab.png"
               alt="Logo AcadLab Moz"
-              className="h-10 w-auto object-contain md:h-12"
+              className="h-12 w-44 rounded-lg object-cover object-center md:h-14 md:w-56"
             />
           </div>
           <div>
@@ -93,7 +93,7 @@ export default function Dashboard({ university, onBack }) {
             <h1 className="text-2xl font-bold">{university.nome}</h1>
           </div>
         </div>
-        <div>
+        <div className="mx-auto md:mx-0">
           <button className="btn-muted" onClick={onBack}>
             Trocar universidade
           </button>
