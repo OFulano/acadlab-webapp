@@ -28,5 +28,14 @@ export const api = {
 
     if (!response.ok) throw new Error(await response.text());
     return response.json();
+  },
+  async delete(path, params) {
+    const response = await fetch(`${API_URL}${path}${toQuery(params)}`, {
+      method: "DELETE"
+    });
+
+    if (!response.ok) throw new Error(await response.text());
+    if (response.status === 204) return null;
+    return response.json();
   }
 };

@@ -82,6 +82,62 @@ const attachCrudRoutes = ({ path, tableName, preprocessPayload }) => {
 
   app.delete(`/api/${path}/:id`, async (req, res) => {
     try {
+      if (tableName === "universidades") {
+        const universityId = req.params.id;
+        const forceDelete = req.query.force === "true";
+
+        if (!forceDelete) {
+          return res.status(400).json({
+            error: "Para eliminar universidade com dados vinculados, use ?force=true."
+          });
+        }
+
+        const { data: clientes, error: clientesError } = await supabase
+          .from("clientes")
+          .select("id")
+          .eq("universidade_id", universityId);
+        if (clientesError) return handleDbError(res, clientesError);
+
+        const clienteIds = (clientes || []).map((item) => item.id);
+
+        if (clienteIds.length > 0) {
+          const { error: trabalhosError } = await supabase
+            .from("trabalhos")
+            .delete()
+            .in("cliente_id", clienteIds);
+          if (trabalhosError) return handleDbError(res, trabalhosError);
+
+          const { error: pagamentosError } = await supabase
+            .from("pagamentos")
+            .delete()
+            .in("cliente_id", clienteIds);
+          if (pagamentosError) return handleDbError(res, pagamentosError);
+        }
+
+        const { error: removeClientesError } = await supabase
+          .from("clientes")
+          .delete()
+          .eq("universidade_id", universityId);
+        if (removeClientesError) return handleDbError(res, removeClientesError);
+
+        const { error: removeBlocosError } = await supabase
+          .from("blocos")
+          .delete()
+          .eq("universidade_id", universityId);
+        if (removeBlocosError) return handleDbError(res, removeBlocosError);
+
+        const { error: removeUniversidadeError } = await supabase
+          .from("universidades")
+          .delete()
+          .eq("id", universityId);
+        if (removeUniversidadeError) return handleDbError(res, removeUniversidadeError);
+
+        return res.json({
+          ok: true,
+          message: "Universidade e dados associados removidos com sucesso."
+        });
+      }
+
       const { error } = await supabase.from(tableName).delete().eq("id", req.params.id);
       if (error) return handleDbError(res, error);
       return res.status(204).send();

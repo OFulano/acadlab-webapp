@@ -29,12 +29,21 @@ export default function App() {
     setSelectedUniversityId(created.id);
   };
 
+  const handleDeleteUniversity = async (universityId) => {
+    await api.delete(`/api/universidades/${universityId}`, { force: "true" });
+    if (selectedUniversityId === universityId) {
+      setSelectedUniversityId("");
+    }
+    await loadUniversities();
+  };
+
   if (!selectedUniversity) {
     return (
       <UniversityGate
         universities={universities}
         onSelect={setSelectedUniversityId}
         onCreate={handleCreateUniversity}
+        onDelete={handleDeleteUniversity}
       />
     );
   }

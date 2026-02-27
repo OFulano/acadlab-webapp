@@ -1,6 +1,6 @@
-﻿import { useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 
-export default function UniversityGate({ universities, onSelect, onCreate }) {
+export default function UniversityGate({ universities, onSelect, onCreate, onDelete }) {
   const [nome, setNome] = useState("");
   const [selected, setSelected] = useState("");
 
@@ -11,6 +11,19 @@ export default function UniversityGate({ universities, onSelect, onCreate }) {
     if (!nome.trim()) return;
     await onCreate({ nome, status: "ativo" });
     setNome("");
+  };
+
+  const handleDelete = async (university) => {
+    const confirmed = window.confirm(
+      `Eliminar "${university.nome}"? Esta acao remove blocos, clientes, trabalhos e pagamentos vinculados.`
+    );
+    if (!confirmed) return;
+
+    try {
+      await onDelete(university.id);
+    } catch (error) {
+      alert(`Falha ao eliminar universidade: ${error.message}`);
+    }
   };
 
   return (
@@ -54,6 +67,35 @@ export default function UniversityGate({ universities, onSelect, onCreate }) {
               Adicionar universidade
             </button>
           </form>
+        </div>
+
+        <div className="mx-auto mt-8 w-full max-w-3xl text-left">
+          <h2 className="text-lg font-semibold text-slate-900">Faculdades cadastradas</h2>
+          <div className="mt-3 space-y-2">
+            {universities.map((u) => (
+              <div
+                key={u.id}
+                className="flex flex-col gap-2 rounded-xl border border-slate-200 bg-slate-50 p-3 sm:flex-row sm:items-center sm:justify-between"
+              >
+                <div>
+                  <p className="font-medium text-slate-900">{u.nome}</p>
+                  <p className="text-xs uppercase tracking-wide text-slate-500">Status: {u.status}</p>
+                </div>
+                <button
+                  type="button"
+                  className="rounded-xl bg-red-600 px-3 py-2 text-sm font-medium text-white hover:bg-red-700"
+                  onClick={() => handleDelete(u)}
+                >
+                  Eliminar
+                </button>
+              </div>
+            ))}
+            {universities.length === 0 && (
+              <p className="rounded-xl border border-dashed border-slate-300 p-3 text-sm text-slate-500">
+                Nenhuma universidade cadastrada.
+              </p>
+            )}
+          </div>
         </div>
       </section>
     </main>
