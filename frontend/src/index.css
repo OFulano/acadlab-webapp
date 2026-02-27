@@ -1,0 +1,29 @@
+﻿@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background: radial-gradient(circle at top left, #e6eefc, #f8fafc 45%);
+  min-height: 100vh;
+}
+
+.card {
+  @apply rounded-2xl bg-white shadow-sm border border-slate-200;
+}
+
+.input {
+  @apply w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none;
+}
+
+.btn {
+  @apply rounded-xl px-4 py-2 text-sm font-medium;
+}
+
+.btn-primary {
+  @apply btn bg-brand-500 text-white hover:bg-brand-700;
+}
+
+.btn-muted {
+  @apply btn bg-slate-200 text-slate-800 hover:bg-slate-300;
+}
