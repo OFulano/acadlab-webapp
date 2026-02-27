@@ -1,8 +1,10 @@
-﻿import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { api } from "../services/api";
 import MetricCard from "../components/MetricCard";
 import StatusPill from "../components/StatusPill";
 import WhatsAppLink from "../components/WhatsAppLink";
+import ContractManager from "../components/ContractManager";
+import { ConfirmPopup, NoticeToast } from "../components/PrettyPopup";
 
 const initialForms = {
   bloco: { nome: "", descricao: "", valor_base: "" },
@@ -11,7 +13,7 @@ const initialForms = {
   pagamento: { cliente_id: "", valor_total: "", valor_pago: "", data_pagamento: "", metodo: "", observacoes: "" }
 };
 
-export default function Dashboard({ university, onBack }) {
+export default function Dashboard({ university, universities = [], onBack, onDeleteUniversity }) {
   const [forms, setForms] = useState(initialForms);
   const [filters, setFilters] = useState({ bloco_id: "", cliente_id: "", tipo_trabalho: "", status_pagamento: "" });
   const [blocos, setBlocos] = useState([]);
@@ -26,6 +28,31 @@ export default function Dashboard({ university, onBack }) {
     pagamentos_pendentes: 0,
     pagamentos_atrasados: 0
   });
+
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [activePanel, setActivePanel] = useState("");
+  const [notice, setNotice] = useState(null);
+  const [universityToDelete, setUniversityToDelete] = useState(null);
+  const [deletingUniversity, setDeletingUniversity] = useState(false);
+
+  const managedUniversities = universities.length > 0 ? universities : [university];
+
+  const menuItems = [
+    { id: "sobre", label: "Sobre Nós" },
+    { id: "gerir", label: "Gerir Faculdade" },
+    { id: "adicionar", label: "Adicionar Opção" },
+    { id: "contrato", label: "Criar Contrato" }
+  ];
+
+  const showNotice = (type, message) => {
+    setNotice({ type, message, ts: Date.now() });
+  };
+
+  useEffect(() => {
+    if (!notice) return undefined;
+    const timeout = setTimeout(() => setNotice(null), 3500);
+    return () => clearTimeout(timeout);
+  }, [notice]);
 
   const formChange = (entity, field, value) => {
     setForms((prev) => ({ ...prev, [entity]: { ...prev[entity], [field]: value } }));
@@ -77,9 +104,24 @@ export default function Dashboard({ university, onBack }) {
     await loadAll();
   };
 
+  const confirmDeleteUniversity = async () => {
+    if (!universityToDelete || !onDeleteUniversity) return;
+
+    try {
+      setDeletingUniversity(true);
+      await onDeleteUniversity(universityToDelete.id);
+      showNotice("success", `Faculdade ${universityToDelete.nome} eliminada com sucesso.`);
+      setUniversityToDelete(null);
+    } catch (error) {
+      showNotice("error", `Falha ao eliminar faculdade: ${error.message}`);
+    } finally {
+      setDeletingUniversity(false);
+    }
+  };
+
   return (
     <main className="mx-auto w-full max-w-7xl px-4 py-4 md:px-8 md:py-8">
-      <header className="mb-5 flex flex-col gap-3 rounded-2xl bg-brand-900 p-4 text-white md:flex-row md:items-center md:justify-between md:p-6">
+      <header className="relative mb-5 flex flex-col gap-3 rounded-2xl bg-brand-900 p-4 text-white md:flex-row md:items-center md:justify-between md:p-6">
         <div className="flex flex-col items-center gap-3 text-center md:flex-row md:text-left">
           <div className="rounded-xl border border-white/20 bg-white p-1 shadow-sm">
             <img
@@ -93,12 +135,103 @@ export default function Dashboard({ university, onBack }) {
             <h1 className="text-2xl font-bold">{university.nome}</h1>
           </div>
         </div>
-        <div className="mx-auto md:mx-0">
+
+        <div className="relative mx-auto flex items-center gap-2 md:mx-0">
           <button className="btn-muted" onClick={onBack}>
             Trocar universidade
           </button>
+          <button
+            type="button"
+            className="rounded-xl border border-white/30 bg-white/10 px-3 py-2 text-sm font-medium text-white hover:bg-white/20"
+            onClick={() => setMenuOpen((prev) => !prev)}
+          >
+            {"\u2630"} Menu
+          </button>
+
+          {menuOpen && (
+            <div className="absolute right-0 top-12 z-40 w-56 rounded-xl border border-slate-200 bg-white p-2 text-left shadow-xl">
+              {menuItems.map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  className={`mb-1 w-full rounded-lg px-3 py-2 text-sm ${
+                    activePanel === item.id
+                      ? "bg-brand-500 text-white"
+                      : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                  }`}
+                  onClick={() => {
+                    setActivePanel(item.id);
+                    setMenuOpen(false);
+                  }}
+                >
+                  {item.label}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       </header>
+
+      {activePanel === "sobre" && (
+        <section className="card mb-5 p-4 text-left">
+          <h2 className="text-lg font-semibold text-slate-900">Sobre Nós</h2>
+          <p className="mt-2 text-sm leading-6 text-slate-700">
+            Fundada em 2019, na cidade de Nampula - Moçambique, a AcadLab Moz nasceu com a missão de oferecer suporte
+            académico acessível, profissional e de alta qualidade para estudantes de diferentes níveis de ensino.
+          </p>
+          <p className="mt-3 text-sm leading-6 text-slate-700">
+            Especializada em produção científica, revisão técnica, normalização académica e orientação metodológica, a
+            AcadLab Moz posiciona-se como parceira estratégica no desenvolvimento académico dos seus clientes.
+          </p>
+          <p className="mt-3 text-sm leading-6 text-slate-700">
+            Trabalhamos com ética, confidencialidade e rigor científico, garantindo resultados alinhados às exigências
+            institucionais.
+          </p>
+          <p className="mt-3 text-sm font-semibold text-slate-900">AcadLab Moz - O Seu Sucesso é a Nossa Tese.</p>
+        </section>
+      )}
+
+      {activePanel === "gerir" && (
+        <section className="card mb-5 p-4 text-left">
+          <h2 className="text-lg font-semibold text-slate-900">Gerir Faculdade</h2>
+          <div className="mt-3 space-y-2">
+            {managedUniversities.map((item) => (
+              <div
+                key={item.id}
+                className="flex flex-col gap-2 rounded-xl border border-slate-200 bg-slate-50 p-3 sm:flex-row sm:items-center sm:justify-between"
+              >
+                <div>
+                  <p className="font-medium text-slate-900">{item.nome}</p>
+                  <p className="text-xs uppercase tracking-wide text-slate-500">Status: {item.status}</p>
+                </div>
+                <button
+                  type="button"
+                  className="rounded-xl bg-red-600 px-3 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50"
+                  onClick={() => setUniversityToDelete(item)}
+                  disabled={!onDeleteUniversity}
+                >
+                  Eliminar
+                </button>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {activePanel === "adicionar" && (
+        <section className="card mb-5 p-4 text-left">
+          <h2 className="text-lg font-semibold text-slate-900">Adicionar Opção</h2>
+          <p className="mt-2 text-sm text-slate-600">
+            Espaço reservado para as próximas opções que você vai enviar.
+          </p>
+        </section>
+      )}
+
+      {activePanel === "contrato" && (
+        <section className="mb-5">
+          <ContractManager universities={managedUniversities} />
+        </section>
+      )}
 
       <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
         <MetricCard title="Clientes ativos" value={resumo.clientes_ativos} tone="good" />
@@ -384,6 +517,22 @@ export default function Dashboard({ university, onBack }) {
           </table>
         </article>
       </section>
+
+      <NoticeToast notice={notice} onClose={() => setNotice(null)} />
+      <ConfirmPopup
+        open={Boolean(universityToDelete)}
+        title="Eliminar Faculdade"
+        message={
+          universityToDelete
+            ? `Eliminar "${universityToDelete.nome}"? Esta ação remove blocos, clientes, trabalhos e pagamentos vinculados.`
+            : ""
+        }
+        confirmLabel="Eliminar"
+        cancelLabel="Cancelar"
+        loading={deletingUniversity}
+        onCancel={() => setUniversityToDelete(null)}
+        onConfirm={confirmDeleteUniversity}
+      />
     </main>
   );
 }

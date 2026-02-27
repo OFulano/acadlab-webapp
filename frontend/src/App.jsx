@@ -48,5 +48,12 @@ export default function App() {
     );
   }
 
-  return <Dashboard university={selectedUniversity} onBack={() => setSelectedUniversityId("")} />;
+  return (
+    <Dashboard
+      university={selectedUniversity}
+      universities={universities}
+      onBack={() => setSelectedUniversityId("")}
+      onDeleteUniversity={handleDeleteUniversity}
+    />
+  );
 }
