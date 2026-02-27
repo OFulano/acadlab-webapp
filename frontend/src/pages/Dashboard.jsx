@@ -80,13 +80,22 @@ export default function Dashboard({ university, onBack }) {
   return (
     <main className="mx-auto w-full max-w-7xl px-4 py-4 md:px-8 md:py-8">
       <header className="mb-5 flex flex-col gap-3 rounded-2xl bg-brand-900 p-4 text-white md:flex-row md:items-center md:justify-between md:p-6">
-        <div>
-          <p className="text-xs uppercase tracking-[0.2em] text-brand-100">AcadLab Moz</p>
-          <h1 className="text-2xl font-bold">Dashboard - {university.nome}</h1>
+        <div className="flex items-center gap-3">
+          <img
+            src="/logo-acadlab.png"
+            alt="Logo AcadLab Moz"
+            className="h-12 w-12 rounded-xl border border-brand-100/20 bg-white object-contain p-1"
+          />
+          <div>
+            <p className="text-xs uppercase tracking-[0.2em] text-brand-100">AcadLab Moz</p>
+            <h1 className="text-2xl font-bold">Dashboard - {university.nome}</h1>
+          </div>
         </div>
-        <button className="btn-muted" onClick={onBack}>
-          Trocar universidade
-        </button>
+        <div>
+          <button className="btn-muted" onClick={onBack}>
+            Trocar universidade
+          </button>
+        </div>
       </header>
 
       <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">

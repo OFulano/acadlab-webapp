@@ -4,16 +4,19 @@
 
 body {
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-  background: radial-gradient(circle at top left, #e6eefc, #f8fafc 45%);
+  background:
+    radial-gradient(circle at 10% 10%, #ccfbf1 0%, transparent 38%),
+    radial-gradient(circle at 90% 0%, #dbeafe 0%, transparent 30%),
+    linear-gradient(180deg, #f8fafc 0%, #ecfeff 100%);
   min-height: 100vh;
 }
 
 .card {
-  @apply rounded-2xl bg-white shadow-sm border border-slate-200;
+  @apply rounded-2xl bg-white/90 shadow-sm border border-slate-200 backdrop-blur;
 }
 
 .input {
-  @apply w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none;
+  @apply w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm focus:border-brand-500 focus:outline-none;
 }
 
 .btn {
@@ -21,9 +24,9 @@ body {
 }
 
 .btn-primary {
-  @apply btn bg-brand-500 text-white hover:bg-brand-700;
+  @apply btn bg-brand-500 text-white hover:bg-brand-700 disabled:opacity-50;
 }
 
 .btn-muted {
-  @apply btn bg-slate-200 text-slate-800 hover:bg-slate-300;
+  @apply btn bg-slate-900 text-white hover:bg-slate-700;
 }
