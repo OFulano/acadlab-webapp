@@ -85,7 +85,7 @@ export default function Dashboard({ university, onBack }) {
             <img
               src="/logo-acadlab.png"
               alt="Logo AcadLab Moz"
-              className="h-12 w-44 rounded-lg object-cover object-center md:h-14 md:w-56"
+              className="h-14 w-52 rounded-lg object-cover object-center md:h-16 md:w-64"
             />
           </div>
           <div>
