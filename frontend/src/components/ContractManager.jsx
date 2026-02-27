@@ -158,13 +158,14 @@ const buildPrintHtml = (contrato) => {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 14px;
     border-bottom: 1px solid rgba(201, 168, 76, 0.35);
     padding-bottom: 10px;
     margin-bottom: 12px;
   }
   .logo-wrap {
-    width: 360px;
-    height: 84px;
+    width: 320px;
+    height: 74px;
     border: 1px solid rgba(13, 31, 60, 0.2);
     border-radius: 8px;
     background: #fff;
@@ -177,17 +178,22 @@ const buildPrintHtml = (contrato) => {
     width: 100%;
     height: 100%;
     object-fit: contain;
-    transform: scale(1.42);
+    transform: scale(1.9);
     transform-origin: center;
   }
-  .doc-info { text-align: right; }
+  .doc-info {
+    text-align: right;
+    flex: 1;
+    min-width: 220px;
+  }
   .doc-title {
     font-family: "Cormorant Garamond", serif;
     font-size: 14px;
     color: var(--gold);
-    letter-spacing: 2px;
+    letter-spacing: 1.2px;
     text-transform: uppercase;
     font-weight: 600;
+    white-space: nowrap;
   }
   .doc-row {
     font-size: 10px;
