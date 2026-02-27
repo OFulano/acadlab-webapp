@@ -73,7 +73,7 @@ const buildPrintHtml = (contrato) => {
         <td>${String(index + 1).padStart(2, "0")}</td>
         <td>${escapeHtml(item.servico)}</td>
         <td>${escapeHtml(item.quantidade)}</td>
-        <td>${escapeHtml(item.prazo_entrega || "-")}</td>
+        <td>${escapeHtml(item.prazo_entrega ? formatDate(item.prazo_entrega) : "-")}</td>
         <td>${formatMoney(item.valor_unitario)}</td>
         <td>${formatMoney(item.subtotal)}</td>
       </tr>`
@@ -86,70 +86,310 @@ const buildPrintHtml = (contrato) => {
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Contrato ${escapeHtml(contrato.numero_contrato)}</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-  :root { --gold:#c9a84c; --navy:#0d1f3c; --light:#f4f7fc; --mid:#2a4070; --dark:#0a1628; }
-  * { box-sizing:border-box; margin:0; padding:0; }
-  body { background:#0d1f3c; font-family:Arial, sans-serif; padding:20px; }
-  .page { width:210mm; min-height:297mm; background:var(--light); margin:0 auto; position:relative; box-shadow:0 10px 30px rgba(0,0,0,.25); }
-  .content { padding:24px 32px; }
-  .top-line { height:5px; background:linear-gradient(90deg, var(--navy), var(--gold), var(--navy)); margin-bottom:18px; }
-  .header { display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(201,168,76,.35); padding-bottom:10px; }
-  .logo-wrap { width:220px; height:56px; border:1px solid rgba(13,31,60,.2); border-radius:8px; background:#fff; display:flex; align-items:center; justify-content:center; overflow:hidden; }
-  .logo-wrap img { max-width:100%; max-height:100%; object-fit:contain; }
-  .doc-title { text-align:right; font-size:12px; color:var(--mid); line-height:1.5; }
-  h1 { font-size:18px; text-align:center; margin:14px 0 8px; color:var(--dark); }
-  .partes { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin:10px 0; }
-  .box { border:1px solid rgba(201,168,76,.4); background:rgba(13,31,60,.04); padding:10px; border-radius:4px; }
-  .label { font-size:10px; color:var(--gold); font-weight:bold; margin-bottom:4px; text-transform:uppercase; }
-  .txt { font-size:12px; color:var(--mid); line-height:1.45; }
-  table { width:100%; border-collapse:collapse; margin-top:10px; }
-  th, td { border-bottom:1px solid rgba(13,31,60,.1); padding:7px 8px; text-align:left; font-size:12px; color:var(--mid); }
-  thead th { background:var(--navy); color:#fff; font-size:11px; text-transform:uppercase; }
-  .total td { font-weight:bold; color:var(--dark); background:rgba(13,31,60,.08); }
-  .obs { margin-top:12px; padding:10px; border:1px solid rgba(201,168,76,.4); border-radius:4px; background:rgba(13,31,60,.04); }
-  .obs h3 { font-size:11px; text-transform:uppercase; color:var(--gold); margin-bottom:6px; }
-  .obs p { font-size:12px; color:var(--mid); line-height:1.5; min-height:42px; }
-  .assinaturas { display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-top:18px; }
-  .sig { text-align:center; }
-  .line { height:1px; background:#111827; margin:36px 0 6px; }
-  .sig small { color:#6b7280; font-size:11px; }
-  .foot { margin-top:12px; border-top:1px solid rgba(201,168,76,.35); padding-top:8px; font-size:11px; color:#6b7280; text-align:center; }
+  :root {
+    --gold: #c9a84c;
+    --gold-light: #e2c06a;
+    --gold-pale: #f5edd4;
+    --navy: #0d1f3c;
+    --mid: #2a4070;
+    --dark: #0a1628;
+    --light: #f4f7fc;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #0d1f3c;
+    font-family: "Jost", sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+    padding: 20px;
+  }
+  .page {
+    width: 210mm;
+    min-height: 297mm;
+    background: var(--light);
+    position: relative;
+    box-shadow: 0 14px 32px rgba(0, 0, 0, 0.25);
+    overflow: hidden;
+  }
+  .bg-pattern {
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(circle at 1px 1px, rgba(201, 168, 76, 0.06) 1px, transparent 0);
+    background-size: 24px 24px;
+    pointer-events: none;
+  }
+  .watermark {
+    position: absolute;
+    top: 52%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-45deg);
+    font-family: "Cormorant Garamond", serif;
+    font-size: 82px;
+    font-weight: 700;
+    color: rgba(13, 31, 60, 0.05);
+    letter-spacing: 8px;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .accent-strip {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 5px;
+    background: linear-gradient(90deg, var(--navy), var(--gold), var(--navy));
+  }
+  .corner { position: absolute; width: 52px; height: 52px; }
+  .corner-tl { top: 16px; left: 16px; border-top: 2px solid var(--gold); border-left: 2px solid var(--gold); }
+  .corner-tr { top: 16px; right: 16px; border-top: 2px solid var(--gold); border-right: 2px solid var(--gold); }
+  .corner-bl { bottom: 16px; left: 16px; border-bottom: 2px solid var(--gold); border-left: 2px solid var(--gold); }
+  .corner-br { bottom: 16px; right: 16px; border-bottom: 2px solid var(--gold); border-right: 2px solid var(--gold); }
+  .content {
+    position: relative;
+    z-index: 2;
+    padding: 28px 36px 24px;
+  }
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(201, 168, 76, 0.35);
+    padding-bottom: 10px;
+    margin-bottom: 12px;
+  }
+  .logo-wrap {
+    width: 250px;
+    height: 58px;
+    border: 1px solid rgba(13, 31, 60, 0.2);
+    border-radius: 8px;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  .logo-wrap img { max-width: 100%; max-height: 100%; object-fit: contain; }
+  .doc-info { text-align: right; }
+  .doc-title {
+    font-family: "Cormorant Garamond", serif;
+    font-size: 14px;
+    color: var(--gold);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+  .doc-row {
+    font-size: 10px;
+    color: #7b8494;
+    margin-top: 2px;
+  }
+  h1 {
+    font-family: "Cormorant Garamond", serif;
+    font-size: 30px;
+    text-align: center;
+    color: var(--dark);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin: 10px 0;
+  }
+  .section-label {
+    font-size: 9px;
+    letter-spacing: 2.3px;
+    text-transform: uppercase;
+    color: var(--gold);
+    font-weight: 600;
+    margin-bottom: 6px;
+    margin-top: 10px;
+  }
+  .parties {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .party-box {
+    background: rgba(13, 31, 60, 0.04);
+    border: 1px solid rgba(201, 168, 76, 0.28);
+    border-radius: 4px;
+    padding: 10px 12px;
+    min-height: 92px;
+  }
+  .party-label {
+    font-size: 8px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--gold);
+    font-weight: 600;
+    margin-bottom: 5px;
+  }
+  .party-name {
+    font-family: "Cormorant Garamond", serif;
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--dark);
+    margin-bottom: 4px;
+  }
+  .party-detail {
+    font-size: 10px;
+    color: var(--mid);
+    line-height: 1.45;
+  }
+  .services-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 8px;
+  }
+  .services-table thead th {
+    background: var(--navy);
+    color: var(--gold-light);
+    font-size: 9px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    text-align: left;
+    padding: 6px 8px;
+  }
+  .services-table tbody td {
+    border-bottom: 1px solid rgba(13, 31, 60, 0.12);
+    padding: 6px 8px;
+    color: var(--mid);
+    font-size: 11px;
+  }
+  .services-table tbody tr:nth-child(even) { background: rgba(13, 31, 60, 0.03); }
+  .services-table .total-row td {
+    background: rgba(13, 31, 60, 0.08);
+    font-weight: 600;
+    color: var(--dark);
+  }
+  .clauses-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 7px;
+    margin-top: 8px;
+  }
+  .clause {
+    padding: 8px 10px;
+    border-left: 2px solid var(--gold);
+    background: rgba(13, 31, 60, 0.04);
+  }
+  .clause-title {
+    font-size: 8px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--gold);
+    font-weight: 600;
+    margin-bottom: 3px;
+  }
+  .clause p {
+    font-size: 10px;
+    color: var(--mid);
+    line-height: 1.45;
+  }
+  .obs {
+    margin-top: 10px;
+    background: rgba(13, 31, 60, 0.04);
+    border: 1px solid rgba(201, 168, 76, 0.3);
+    border-radius: 4px;
+    padding: 8px 10px;
+  }
+  .obs h3 {
+    font-size: 8px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 3px;
+  }
+  .obs p {
+    font-size: 10px;
+    color: var(--mid);
+    min-height: 36px;
+    line-height: 1.45;
+  }
+  .signatures {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-top: 14px;
+  }
+  .sig { text-align: center; }
+  .sig-space { height: 24px; }
+  .sig-line { width: 100%; height: 1px; background: #1f2937; margin-bottom: 4px; }
+  .sig-name {
+    font-family: "Cormorant Garamond", serif;
+    font-size: 13px;
+    color: var(--dark);
+    font-weight: 600;
+  }
+  .sig-role {
+    font-size: 8px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #8c93a0;
+  }
+  .footer {
+    margin-top: 10px;
+    border-top: 1px solid rgba(201, 168, 76, 0.3);
+    padding-top: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 8px;
+    color: #8d94a2;
+  }
+  .footer-brand {
+    font-family: "Cormorant Garamond", serif;
+    color: var(--gold);
+    font-size: 10px;
+    font-style: italic;
+  }
   @media print {
-    body { background:#fff; padding:0; }
-    .page { box-shadow:none; width:100%; min-height:100vh; }
+    body { background: #fff; padding: 0; }
+    .page { box-shadow: none; width: 100%; min-height: 100vh; }
   }
 </style>
 </head>
 <body>
   <div class="page">
+    <div class="bg-pattern"></div>
+    <div class="watermark">Confidencial</div>
+    <div class="accent-strip"></div>
+    <div class="corner corner-tl"></div>
+    <div class="corner corner-tr"></div>
+    <div class="corner corner-bl"></div>
+    <div class="corner corner-br"></div>
+
     <div class="content">
-      <div class="top-line"></div>
       <div class="header">
         <div class="logo-wrap">
           <img src="${window.location.origin}/contrato/logo-contrato.png" alt="Logo contrato" />
         </div>
-        <div class="doc-title">
-          <div><strong>Contrato de Prestacao de Servicos</strong></div>
-          <div>No ${escapeHtml(contrato.numero_contrato)} / ${escapeHtml(contrato.ano_referencia)}</div>
-          <div>Data: ${escapeHtml(formatDate(contrato.data_contrato))}</div>
+        <div class="doc-info">
+          <div class="doc-title">Contrato de Servicos</div>
+          <div class="doc-row">No ${escapeHtml(contrato.numero_contrato)} / ${escapeHtml(contrato.ano_referencia)}</div>
+          <div class="doc-row">Data: ${escapeHtml(formatDate(contrato.data_contrato))}</div>
         </div>
       </div>
 
       <h1>Contrato de Prestacao de Servicos Academicos</h1>
 
-      <div class="partes">
-        <div class="box">
-          <div class="label">Prestador de Servicos</div>
-          <div class="txt">
-            <strong>AcadLab Moz</strong><br />
+      <div class="section-label">Partes Contratantes</div>
+      <div class="parties">
+        <div class="party-box">
+          <div class="party-label">Prestador de Servicos</div>
+          <div class="party-name">AcadLab Moz</div>
+          <div class="party-detail">
             Fundada em 2019 - Nampula, Mocambique<br />
-            Contacto: 864055649
+            Especialista em producao cientifica e suporte academico<br />
+            Contacto: 864 055 649
           </div>
         </div>
-        <div class="box">
-          <div class="label">Cliente / Contratante</div>
-          <div class="txt">
-            <strong>${escapeHtml(contrato.cliente_nome || "-")}</strong><br />
+        <div class="party-box">
+          <div class="party-label">Cliente / Contratante</div>
+          <div class="party-name">${escapeHtml(contrato.cliente_nome || "-")}</div>
+          <div class="party-detail">
             Curso: ${escapeHtml(contrato.curso || "-")}<br />
             Instituicao: ${escapeHtml(contrato.instituicao || "-")}<br />
             Contacto: ${escapeHtml(contrato.contato || "-")}
@@ -157,7 +397,8 @@ const buildPrintHtml = (contrato) => {
         </div>
       </div>
 
-      <table>
+      <div class="section-label">Descricao dos Servicos</div>
+      <table class="services-table">
         <thead>
           <tr>
             <th>#</th>
@@ -170,36 +411,73 @@ const buildPrintHtml = (contrato) => {
         </thead>
         <tbody>
           ${rows}
-          <tr class="total">
+          <tr class="total-row">
             <td colspan="5" style="text-align:right">VALOR TOTAL</td>
             <td>${formatMoney(contrato.valor_total)}</td>
           </tr>
-          <tr class="total">
+          <tr class="total-row">
             <td colspan="5" style="text-align:right">VALOR A PAGAR (100%)</td>
             <td>${formatMoney(contrato.valor_pagamento)}</td>
           </tr>
         </tbody>
       </table>
 
+      <div class="section-label">Clausulas e Condicoes</div>
+      <div class="clauses-grid">
+        <div class="clause">
+          <div class="clause-title">Clausula I - Pagamento</div>
+          <p>O pagamento sera efectuado conforme acordado: <strong>${Number(
+            contrato.percentual_pagamento || 100
+          ).toFixed(0)}%</strong> no acto da contratacao e o remanescente na entrega. Meios aceites: M-Pesa, e-Mola e Transferencia Bancaria.</p>
+        </div>
+        <div class="clause">
+          <div class="clause-title">Clausula II - Confidencialidade</div>
+          <p>A AcadLab Moz compromete-se a manter total sigilo sobre os dados, conteudos e informacoes fornecidos pelo cliente, nao os divulgando a terceiros.</p>
+        </div>
+        <div class="clause">
+          <div class="clause-title">Clausula III - Revisoes</div>
+          <p>O cliente tem direito a revisoes sem custo adicional, desde que dentro do escopo original acordado. Normas aplicadas: APA, ABNT, Vancouver ou outra solicitada.</p>
+        </div>
+        <div class="clause">
+          <div class="clause-title">Clausula IV - Propriedade e Uso</div>
+          <p>Apos quitacao total, o material produzido e de uso exclusivo do cliente. A AcadLab Moz reserva-se o direito de utilizar o trabalho como portfolio anonimo.</p>
+        </div>
+        <div class="clause">
+          <div class="clause-title">Clausula V - Cancelamento</div>
+          <p>Em caso de cancelamento pelo cliente apos inicio dos trabalhos, o valor da fase executada sera retido. Cancelamentos antes do inicio terao reembolso integral.</p>
+        </div>
+        <div class="clause">
+          <div class="clause-title">Clausula VI - Rigor e Qualidade</div>
+          <p>Todos os trabalhos sao executados com rigor cientifico, etica profissional e alinhados as exigencias institucionais, garantindo resultados de alta qualidade academica.</p>
+        </div>
+      </div>
+
       <div class="obs">
         <h3>Observacoes / Negociacao</h3>
         <p>${escapeHtml(contrato.observacoes || "Sem observacoes.")}</p>
       </div>
 
-      <div class="assinaturas">
+      <div class="section-label">Assinaturas</div>
+      <div class="signatures">
         <div class="sig">
-          <div class="line"></div>
-          <div>${escapeHtml(contrato.assinatura || "Ass :")}</div>
-          <small>Prestador de Servicos</small>
+          <div class="sig-space"></div>
+          <div class="sig-line"></div>
+          <div class="sig-name">${escapeHtml(contrato.assinatura || "Ass :")}</div>
+          <div class="sig-role">Prestador de Servicos</div>
         </div>
         <div class="sig">
-          <div class="line"></div>
-          <div>Ass :</div>
-          <small>Cliente / Contratante</small>
+          <div class="sig-space"></div>
+          <div class="sig-line"></div>
+          <div class="sig-name">Ass :</div>
+          <div class="sig-role">Cliente / Contratante</div>
         </div>
       </div>
 
-      <div class="foot">Formato A4 - Documento confidencial</div>
+      <div class="footer">
+        <div class="footer-brand">AcadLab Moz - O Seu Sucesso e a Nossa Tese.</div>
+        <div>Nampula - Mocambique - Fundada 2019</div>
+        <div>Pag. 1 / 1</div>
+      </div>
     </div>
   </div>
 </body>
@@ -399,6 +677,21 @@ export default function ContractManager({ universities }) {
       contato: contrato.contato || contrato.cliente_contato,
       valor_pagamento: contrato.valor_pagamento || contrato.valor_total
     });
+  };
+
+  const deleteContrato = async (contrato) => {
+    const confirmed = window.confirm(`Apagar contrato ${contrato.numero_contrato}?`);
+    if (!confirmed) return;
+
+    try {
+      await api.delete(`/api/contratos/${contrato.id}`);
+      if (form.id === contrato.id) {
+        clearForm();
+      }
+      await loadData(form.universidade_id);
+    } catch (error) {
+      alert(`Falha ao apagar contrato: ${error.message}`);
+    }
   };
 
   return (
@@ -634,6 +927,13 @@ export default function ContractManager({ universities }) {
                         onClick={() => printFromSaved(contrato)}
                       >
                         Imprimir
+                      </button>
+                      <button
+                        type="button"
+                        className="rounded-lg bg-red-600 px-2 py-1 text-xs font-medium text-white hover:bg-red-700"
+                        onClick={() => deleteContrato(contrato)}
+                      >
+                        Apagar
                       </button>
                     </div>
                   </td>
