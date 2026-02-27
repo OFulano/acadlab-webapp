@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { api } from "../services/api";
+import { ConfirmPopup, NoticeToast } from "./PrettyPopup";
 
 const SERVICE_OPTIONS = [
   "Trabalho de Pesquisa",
@@ -495,6 +496,13 @@ export default function ContractManager({ universities }) {
   const [clientes, setClientes] = useState([]);
   const [contratos, setContratos] = useState([]);
   const [saving, setSaving] = useState(false);
+  const [notice, setNotice] = useState(null);
+  const [contractToDelete, setContractToDelete] = useState(null);
+  const [deleting, setDeleting] = useState(false);
+
+  const showNotice = (type, message) => {
+    setNotice({ type, message, ts: Date.now() });
+  };
 
   const universidadeMap = useMemo(() => {
     const map = new Map();
@@ -507,6 +515,12 @@ export default function ContractManager({ universities }) {
       setForm((prev) => ({ ...prev, universidade_id: universities[0].id, instituicao: universities[0].nome }));
     }
   }, [universities, form.universidade_id]);
+
+  useEffect(() => {
+    if (!notice) return undefined;
+    const timeout = setTimeout(() => setNotice(null), 3500);
+    return () => clearTimeout(timeout);
+  }, [notice]);
 
   const loadData = async (universidadeId) => {
     if (!universidadeId) {
@@ -526,7 +540,7 @@ export default function ContractManager({ universities }) {
 
   useEffect(() => {
     loadData(form.universidade_id).catch((error) => {
-      alert(`Erro ao carregar contratos: ${error.message}`);
+      showNotice("error", `Erro ao carregar contratos: ${error.message}`);
     });
   }, [form.universidade_id]);
 
@@ -599,7 +613,7 @@ export default function ContractManager({ universities }) {
 
   const saveContrato = async ({ silent = false } = {}) => {
     if (!form.universidade_id || !form.cliente_id) {
-      alert("Selecione universidade e cliente antes de salvar.");
+      showNotice("warn", "Selecione universidade e cliente antes de salvar.");
       return null;
     }
 
@@ -618,10 +632,10 @@ export default function ContractManager({ universities }) {
       }));
 
       await loadData(form.universidade_id);
-      if (!silent) alert("Contrato guardado com sucesso.");
+      if (!silent) showNotice("success", "Contrato guardado com sucesso.");
       return saved;
     } catch (error) {
-      alert(`Falha ao guardar contrato: ${error.message}`);
+      showNotice("error", `Falha ao guardar contrato: ${error.message}`);
       return null;
     } finally {
       setSaving(false);
@@ -631,7 +645,7 @@ export default function ContractManager({ universities }) {
   const openPrint = (source) => {
     const popup = window.open("", "_blank", "width=1000,height=900");
     if (!popup) {
-      alert("Permita popups no navegador para imprimir o contrato.");
+      showNotice("warn", "Permita popups no navegador para imprimir o contrato.");
       return;
     }
 
@@ -686,17 +700,20 @@ export default function ContractManager({ universities }) {
   };
 
   const deleteContrato = async (contrato) => {
-    const confirmed = window.confirm(`Apagar contrato ${contrato.numero_contrato}?`);
-    if (!confirmed) return;
-
+    if (!contrato) return;
     try {
+      setDeleting(true);
       await api.delete(`/api/contratos/${contrato.id}`);
       if (form.id === contrato.id) {
         clearForm();
       }
       await loadData(form.universidade_id);
+      showNotice("success", `Contrato ${contrato.numero_contrato} apagado com sucesso.`);
+      setContractToDelete(null);
     } catch (error) {
-      alert(`Falha ao apagar contrato: ${error.message}`);
+      showNotice("error", `Falha ao apagar contrato: ${error.message}`);
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -937,7 +954,7 @@ export default function ContractManager({ universities }) {
                       <button
                         type="button"
                         className="rounded-lg bg-red-600 px-2 py-1 text-xs font-medium text-white hover:bg-red-700"
-                        onClick={() => deleteContrato(contrato)}
+                        onClick={() => setContractToDelete(contrato)}
                       >
                         Apagar
                       </button>
@@ -956,6 +973,22 @@ export default function ContractManager({ universities }) {
           </table>
         </div>
       </div>
+
+      <NoticeToast notice={notice} onClose={() => setNotice(null)} />
+      <ConfirmPopup
+        open={Boolean(contractToDelete)}
+        title="Apagar contrato"
+        message={
+          contractToDelete
+            ? `Tem certeza que pretende apagar o contrato ${contractToDelete.numero_contrato}?`
+            : ""
+        }
+        confirmLabel="Apagar"
+        cancelLabel="Cancelar"
+        loading={deleting}
+        onCancel={() => setContractToDelete(null)}
+        onConfirm={() => deleteContrato(contractToDelete)}
+      />
     </div>
   );
 }

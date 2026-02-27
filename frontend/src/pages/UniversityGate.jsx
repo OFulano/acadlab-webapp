@@ -1,11 +1,15 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import ContractManager from "../components/ContractManager";
+import { ConfirmPopup, NoticeToast } from "../components/PrettyPopup";
 
 export default function UniversityGate({ universities, onSelect, onCreate, onDelete }) {
   const [nome, setNome] = useState("");
   const [selected, setSelected] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
   const [activePanel, setActivePanel] = useState("");
+  const [notice, setNotice] = useState(null);
+  const [universityToDelete, setUniversityToDelete] = useState(null);
+  const [deleting, setDeleting] = useState(false);
 
   const options = useMemo(() => universities.filter((u) => u.status === "ativo"), [universities]);
   const menuItems = [
@@ -15,6 +19,10 @@ export default function UniversityGate({ universities, onSelect, onCreate, onDel
     { id: "contrato", label: "Criar Contrato" }
   ];
 
+  const showNotice = (type, message) => {
+    setNotice({ type, message, ts: Date.now() });
+  };
+
   const submitUniversity = async (event) => {
     event.preventDefault();
     if (!nome.trim()) return;
@@ -22,16 +30,23 @@ export default function UniversityGate({ universities, onSelect, onCreate, onDel
     setNome("");
   };
 
-  const handleDelete = async (university) => {
-    const confirmed = window.confirm(
-      `Eliminar "${university.nome}"? Esta acao remove blocos, clientes, trabalhos e pagamentos vinculados.`
-    );
-    if (!confirmed) return;
+  useEffect(() => {
+    if (!notice) return undefined;
+    const timeout = setTimeout(() => setNotice(null), 3500);
+    return () => clearTimeout(timeout);
+  }, [notice]);
 
+  const confirmDeleteUniversity = async () => {
+    if (!universityToDelete) return;
     try {
-      await onDelete(university.id);
+      setDeleting(true);
+      await onDelete(universityToDelete.id);
+      showNotice("success", `Faculdade ${universityToDelete.nome} eliminada com sucesso.`);
+      setUniversityToDelete(null);
     } catch (error) {
-      alert(`Falha ao eliminar universidade: ${error.message}`);
+      showNotice("error", `Falha ao eliminar universidade: ${error.message}`);
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -44,7 +59,7 @@ export default function UniversityGate({ universities, onSelect, onCreate, onDel
             className="rounded-xl bg-slate-900 px-3 py-2 text-sm font-medium text-white hover:bg-slate-700"
             onClick={() => setMenuOpen((prev) => !prev)}
           >
-            ☰ Menu
+            {"\u2630"} Menu
           </button>
 
           {menuOpen && (
@@ -112,22 +127,21 @@ export default function UniversityGate({ universities, onSelect, onCreate, onDel
 
         {activePanel === "sobre" && (
           <div className="mx-auto mt-8 w-full max-w-3xl rounded-xl border border-slate-200 bg-slate-50 p-4 text-left">
-            <h2 className="text-lg font-semibold text-slate-900">Sobre NÓs</h2>
+            <h2 className="text-lg font-semibold text-slate-900">Sobre N&oacute;s</h2>
             <p className="mt-2 text-sm leading-6 text-slate-700">
-              Fundada em 2019, na cidade de Nampula - Moçambique, a AcadLab Moz nasceu com a missão de oferecer
-              suporte académico acessível, profissional e de alta qualidade para estudantes de diferentes níveis de
+              Fundada em 2019, na cidade de Nampula - Mo&ccedil;ambique, a AcadLab Moz nasceu com a miss&atilde;o de oferecer
+              suporte acad&eacute;mico acess&iacute;vel, profissional e de alta qualidade para estudantes de diferentes n&iacute;veis de
               ensino.
             </p>
             <p className="mt-3 text-sm leading-6 text-slate-700">
-              Especializada em produção científica, revisão técnica, normalização académica e orientação metodológica,
-              a AcadLab Moz posiciona-se como parceira estratégica no desenvolvimento académico dos seus clientes.
-              Trabalhamos com ética, confidencialidade e rigor científico, garantindo resultados alinhados às
-              exigências institucionais.
+              Especializada em produ&ccedil;&atilde;o cient&iacute;fica, revis&atilde;o t&eacute;cnica, normaliza&ccedil;&atilde;o acad&eacute;mica e orienta&ccedil;&atilde;o metodol&oacute;gica,
+              a AcadLab Moz posiciona-se como parceira estrat&eacute;gica no desenvolvimento acad&eacute;mico dos seus clientes.
+              Trabalhamos com &eacute;tica, confidencialidade e rigor cient&iacute;fico, garantindo resultados alinhados &agrave;s exig&ecirc;ncias institucionais.
             </p>
             <p className="mt-3 text-sm leading-6 text-slate-700">
-              Acreditamos que cada estudante merece apoio adequado para transformar esforço em excelência.
+              Acreditamos que cada estudante merece apoio adequado para transformar esfor&ccedil;o em excel&ecirc;ncia.
             </p>
-            <p className="mt-3 text-sm font-semibold text-slate-900">AcadLab Moz - O Seu Sucesso é a Nossa Tese.</p>
+            <p className="mt-3 text-sm font-semibold text-slate-900">AcadLab Moz - O Seu Sucesso &eacute; a Nossa Tese.</p>
           </div>
         )}
 
@@ -147,7 +161,7 @@ export default function UniversityGate({ universities, onSelect, onCreate, onDel
                   <button
                     type="button"
                     className="rounded-xl bg-red-600 px-3 py-2 text-sm font-medium text-white hover:bg-red-700"
-                    onClick={() => handleDelete(u)}
+                    onClick={() => setUniversityToDelete(u)}
                   >
                     Eliminar
                   </button>
@@ -169,9 +183,23 @@ export default function UniversityGate({ universities, onSelect, onCreate, onDel
           </div>
         )}
 
-        {activePanel === "contrato" && (
-          <ContractManager universities={universities} />
-        )}
+        {activePanel === "contrato" && <ContractManager universities={universities} />}
+
+        <NoticeToast notice={notice} onClose={() => setNotice(null)} />
+        <ConfirmPopup
+          open={Boolean(universityToDelete)}
+          title="Eliminar Faculdade"
+          message={
+            universityToDelete
+              ? `Eliminar "${universityToDelete.nome}"? Esta acao remove blocos, clientes, trabalhos e pagamentos vinculados.`
+              : ""
+          }
+          confirmLabel="Eliminar"
+          cancelLabel="Cancelar"
+          loading={deleting}
+          onCancel={() => setUniversityToDelete(null)}
+          onConfirm={confirmDeleteUniversity}
+        />
       </section>
     </main>
   );
