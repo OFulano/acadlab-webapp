@@ -1,4 +1,4 @@
-﻿{
+{
   "name": "acadlab-backend",
   "version": "1.0.0",
   "description": "API de gerenciamento de clientes AcadLab Moz",
@@ -18,3 +18,4 @@
     "nodemon": "^3.1.9"
   }
 }
+
